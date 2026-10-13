@@ -1,0 +1,18 @@
+{
+  "geode": "5.11.1",
+  "gd": {
+    "win": "2.2081",
+    "android": "2.2081",
+    "mac": "2.2081",
+    "ios": "2.2081"
+  },
+  "id": "silver984.meteorite-client",
+  "name": "Meteorite Client",
+  "version": "v1.0.0",
+  "developer": "silver984",
+  "description": "",
+  "early-load": true,
+  "dependencies": {
+    "geode.node-ids": ">=v1.23.3"
+  }
+}
