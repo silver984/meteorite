@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <Geode/modify/CCEGLView.hpp>
+#include <Geode/modify/CCMouseDispatcher.hpp>
 #include <Geode/modify/CCScheduler.hpp>
 
 #include <Geode/cocos/CCDirector.h>
@@ -32,20 +33,54 @@ SOFTWARE.
 
 #include <Geode/cocos/platform/win32/CCGL.h>
 
+#include <Geode/utils/Keyboard.hpp>
+
+#include <Geode/loader/Event.hpp>
+
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 
-using namespace geode::prelude;
+namespace meteorite::events {
+static geode::ListenerHandle* mouseMove   = nullptr;
+static geode::ListenerHandle* scrollWheel = nullptr;
+} // namespace meteorite::events
 
-struct mc_CCEGLView final : Modify<mc_CCEGLView, CCEGLView> {
+namespace meteorite {
+struct CCEGLView;
+struct CCScheduler;
+} // namespace meteorite
+
+struct meteorite::CCEGLView
+  : geode::Modify<meteorite::CCEGLView, cocos2d::CCEGLView> {
   // @note Meteorite Client detour
-  void setupWindow(CCRect rect) {
-    CCEGLView::setupWindow(rect);
+  void setupWindow(cocos2d::CCRect rect) {
+    cocos2d::CCEGLView::setupWindow(rect);
+
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
+
     ImGui_ImplOpenGL2_Init();
-    ImGui::GetIO().IniFilename = nullptr;
-    // TODO(silver984): handle window
+
+    ImGuiIO& io    = ImGui::GetIO();
+    io.IniFilename = nullptr;
+
+    // clang-format off
+    events::mouseMove =
+      geode::MouseMoveEvent().listen([](std::int32_t x,
+                                        std::int32_t y) {
+        geode::log::info("MouseMoveEvent {} {}", x, y);
+        ImGuiIO& io = ImGui::GetIO();
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+        io.AddMousePosEvent(static_cast<float>(x), static_cast<float>(y));
+      }).leak();
+
+    events::scrollWheel =
+      geode::ScrollWheelEvent().listen([](double x, double y) {
+        ImGuiIO& io = ImGui::GetIO();
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+        io.AddMouseWheelEvent(x, y);
+      }).leak();
+    // clang-format on
   }
 
   // @note Meteorite Client detour
@@ -56,32 +91,41 @@ struct mc_CCEGLView final : Modify<mc_CCEGLView, CCEGLView> {
     glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
     glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     glUseProgram(0);
-    glDisableVertexAttribArray(kCCVertexAttrib_Position);
+    glDisableVertexAttribArray(cocos2d::kCCVertexAttrib_Position);
 
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
     glPopClientAttrib();
     glUseProgram(prog);
 
-    CCEGLView::swapBuffers();
+    cocos2d::CCEGLView::swapBuffers();
+  }
+
+  // @note Meteorite Client detour
+  void onGLFWWindowIconifyFunCallback(GLFWwindow* window, int iconified) {
+    geode::log::info("huh");
+    cocos2d::CCEGLView::onGLFWWindowIconifyFunCallback(window, iconified);
   }
 
   // @note Meteorite Client detour
   void end() {
+    delete events::scrollWheel;
+    delete events::mouseMove;
     ImGui_ImplOpenGL2_Shutdown();
     ImGui::DestroyContext();
-    CCEGLView::end();
+    cocos2d::CCEGLView::end();
   }
 };
 
-struct mc_CCScheduler final : public Modify<mc_CCScheduler, CCScheduler> {
+struct meteorite::CCScheduler
+  : geode::Modify<meteorite::CCScheduler, cocos2d::CCScheduler> {
   // @note Meteorite Client detour
   void update(float dt) {
-    CCScheduler::update(dt);
+    cocos2d::CCScheduler::update(dt);
 
-    CCSize const frameSize =
-      CCDirector::sharedDirector()->getOpenGLView()->getFrameSize() *
-      utils::getDisplayFactor();
+    cocos2d::CCSize const frameSize =
+      cocos2d::CCDirector::sharedDirector()->getOpenGLView()->getFrameSize() *
+      geode::utils::getDisplayFactor();
 
     ImGuiIO& io    = ImGui::GetIO();
     io.DisplaySize = ImVec2(frameSize.width, frameSize.height);
