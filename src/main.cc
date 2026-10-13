@@ -68,7 +68,9 @@ struct meteorite::CCEGLView
     events::mouseMove =
       geode::MouseMoveEvent().listen([](std::int32_t x,
                                         std::int32_t y) {
-        geode::log::info("MouseMoveEvent {} {}", x, y);
+        if (cocos2d::CCDirector::sharedDirector()->isPaused()) {
+          return;
+        }
         ImGuiIO& io = ImGui::GetIO();
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
         io.AddMousePosEvent(static_cast<float>(x), static_cast<float>(y));
@@ -99,12 +101,6 @@ struct meteorite::CCEGLView
     glUseProgram(prog);
 
     cocos2d::CCEGLView::swapBuffers();
-  }
-
-  // @note Meteorite Client detour
-  void onGLFWWindowIconifyFunCallback(GLFWwindow* window, int iconified) {
-    geode::log::info("huh");
-    cocos2d::CCEGLView::onGLFWWindowIconifyFunCallback(window, iconified);
   }
 
   // @note Meteorite Client detour
