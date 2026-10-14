@@ -60,6 +60,13 @@ struct CCScheduler;
 
 struct meteorite::CCEGLView
   : geode::Modify<meteorite::CCEGLView, cocos2d::CCEGLView> {
+  using Self = util::ModifyType<meteorite::CCEGLView, cocos2d::CCEGLView>;
+  static void onModify(Self& self) {
+    for (geode::Hook* hook : self.getAllHooks()) {
+      hook->setPriority(geode::Priority::Replace);
+    }
+  }
+
   // @note Meteorite detour
   void setupWindow(cocos2d::CCRect rect) {
     cocos2d::CCEGLView::setupWindow(rect);

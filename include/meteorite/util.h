@@ -29,6 +29,8 @@ SOFTWARE.
 
 #include <Geode/utils/Keyboard.hpp>
 
+#include <Geode/modify/Modify.hpp>
+
 #include <imgui.h>
 
 namespace meteorite::util {
@@ -36,6 +38,10 @@ namespace meteorite::util {
 [[nodiscard]] ImGuiKey cocosKeyCodeToImGuiKey(cocos2d::enumKeyCodes code);
 [[nodiscard]] ImGuiMouseButton_
 geodeMouseBtnToImGuiMouseBtn(geode::MouseInputData::Button btn);
+
+template <typename Mod, typename Base>
+using ModifyType =
+  geode::modifier::ModifyBase<geode::modifier::ModifyDerive<Mod, Base>>;
 
 } // namespace meteorite::util
 
