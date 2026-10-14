@@ -43,6 +43,8 @@ file(
 )
 
 target_sources(meteorite_lib PRIVATE ${METEORITE_LIB_SOURCES})
+target_include_directories(meteorite_lib PRIVATE
+                           ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if (NOT DEFINED ENV{GEODE_SDK})
   message(FATAL_ERROR "Unable to find Geode SDK!")

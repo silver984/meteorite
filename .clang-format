@@ -22,10 +22,15 @@ AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortLambdasOnASingleLine: false
 AllowShortEnumsOnASingleLine: false
 
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCaseColons: false
 AlignConsecutiveAssignments: Consecutive
 AlignAfterOpenBracket: Align
 AlignConsecutiveMacros: true
